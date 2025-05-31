@@ -2,52 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOAT Mystery Terminal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Find the GOAT</title>
     <link rel="stylesheet" href="css/terminal.css">
-    <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body>
-    <div id="loading-screen">
-        <p>Loading G.O.A.T. Mystery...</p>
-        <pre>
-    (\__/)
-    (='.'=)
-    (")_(")
-        </pre>
-    </div>    <div id="terminal"></div>
-    
-    <div id="button-row">
-        <!-- Primary Action Buttons -->
-        <div class="primary-controls">
-            <button data-command="look">
-                🔍 LOOK
-                <div class="button-label">Examine area</div>
-            </button>
-            <button data-command="inventory">
-                🎒 ITEMS
-                <div class="button-label">Check inventory</div>
-            </button>
-            <button data-command="help">
-                ❓ HELP
-                <div class="button-label">Show commands</div>
-            </button>
-            <button data-command="talk" class="context-button" style="display: none;">
-                💬 TALK
-                <div class="button-label">Speak to someone</div>
-            </button>
-        </div>
+    <div id="game-container">
+        <div id="terminal"></div>
+        
+        <div id="controls">
+            <!-- Main Actions -->
+            <div class="action-buttons">
+                <button data-command="look">👀 LOOK</button>
+                <button data-command="inventory">🎒 ITEMS</button>
+                <button data-command="help">❓ HELP</button>
+            </div>
 
-        <!-- Context Help -->
-        <div class="context-help">
-            💡 Tap LOOK to examine your surroundings • Use movement buttons to explore
-        </div>
-
-        <!-- Movement Section -->
-        <div class="movement-section">
-            <div class="movement-header">🧭 MOVEMENT</div>
-              <!-- Cardinal Directions -->
+            <!-- Movement Grid -->
             <div class="movement-grid">
+                <button data-command="north" class="move-btn">⬆️</button>
+                <div class="move-row">
+                    <button data-command="west" class="move-btn">⬅️</button>
+                    <button data-command="up" class="move-btn up-down">🔼</button>
+                    <button data-command="east" class="move-btn">➡️</button>
+                </div>
+                <button data-command="south" class="move-btn">⬇️</button>
+                <button data-command="down" class="move-btn up-down">🔽</button>
+            </div>
+
+            <!-- Context Actions -->
+            <div class="context-buttons">
+                <button data-command="take" id="take-btn">✋ TAKE</button>
+                <button data-command="talk" id="talk-btn">💬 TALK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Single script approach -->
+    <script src="levels/level-1-simple.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
+            game.init();
+        });
+    </script>
+</body>
+</html>
                 <button data-command="north">⬆️<br>NORTH</button>
                 <button data-command="west">⬅️<br>WEST</button>
                 <button data-command="east">➡️<br>EAST</button>
@@ -60,9 +60,15 @@
                 <button data-command="down">🪜 DOWN</button>
             </div>
         </div>
-    </div>
-    
-    <!-- Load scripts in correct order -->
+
+        <!-- Quick Actions (contextual) -->
+        <div class="quick-actions" style="display: none;">
+            <button data-command="take" class="quick-btn">✋ TAKE</button>
+            <button data-command="examine" class="quick-btn">🔍 EXAMINE</button>
+        </div>
+    </div>    <!-- Load scripts in correct order -->
+    <script src="js/mobile-optimizer.js"></script>
+    <script src="assets/ascii/quick-art.js"></script>
     <script src="js/state.js"></script>
     <script src="levels/level-1.js"></script>
     <script src="js/engine.js"></script>

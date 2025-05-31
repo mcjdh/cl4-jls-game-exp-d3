@@ -1,52 +1,68 @@
-# GOAT Mystery: Terminal Tales - Quick Start Guide
+# Find the GOAT 🐐
 
-Welcome, Investigator! Dive into "GOAT Mystery: Terminal Tales," an ASCII-art RPG where your mission is to uncover the truth behind the mysterious disappearance of G.O.A.T., the Greatest Of All Time.
+A simple, mobile-friendly text adventure game where you help a farmer find their missing goat.
 
-## Premise
+## Play Now
 
-The world-renowned G.O.A.T. has vanished without a trace. As a seasoned investigator, you're called in to solve the enigma. Navigate a text-based world, gather clues, interact with characters (if any), and piece together the puzzle to find G.O.A.T.
+1. Open `index.html` in any web browser
+2. Use the buttons to play - no typing required!
 
-## Basic Commands
+## How to Play
 
-You'll interact with the game using simple text commands. Here are some of the basic ones to get you started:
+- **👀 LOOK** - Examine your surroundings
+- **🎒 ITEMS** - Check what you're carrying
+- **Arrow Buttons** - Move in different directions
+- **✋ TAKE** - Pick up items (appears when items are nearby)
+- **💬 TALK** - Chat with people (appears when someone is nearby)
 
-*   `LOOK`: Describes your current location and any visible items or points of interest.
-*   `GO [direction]`: Moves your character in the specified direction (e.g., `GO NORTH`, `GO EAST`, `GO INSIDE`).
-*   `TAKE [item]`: Picks up an item from your current location and adds it to your inventory (e.g., `TAKE KEY`).
-*   `USE [item]`: Attempts to use an item from your inventory, sometimes with a target (e.g., `USE KEY ON CHEST`, `USE COMPUTER`).
-*   `INVENTORY` (or `I`): Shows a list of items you are currently carrying.
-*   `HELP`: Provides a list of available commands or hints about what you can do.
+## Game Goal
 
-*(More commands might be discoverable as you progress!)*
+Help Farmer Joe find his missing goat, Geraldine! Explore the farm, collect clues, and discover where she's hiding.
 
-## Objective
+## Features
 
-Your main objective is to solve the mystery of the missing G.O.A.T. This involves:
-*   **Exploring** different locations.
-*   **Collecting** clues and useful items.
-*   **Solving** puzzles by using items and interacting with the environment.
-*   Ultimately, uncovering what happened to G.O.A.T.
+- 📱 Mobile-friendly design
+- 💾 Auto-saves your progress
+- 🎮 Simple button controls
+- 🗺️ 4 locations to explore
+- 🔍 2 clues to discover
+- 🐐 1 goat to find!
 
-## How to Play Locally (Example)
+## Tips
 
-To play this game locally on your computer:
+- Start by talking to the farmer
+- Look for clues in each location
+- Geraldine likes high places
+- Your progress saves automatically
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [replace_with_actual_repository_url] goat-rpg
-    ```
-2.  **Navigate to the game directory:**
-    ```bash
-    cd goat-rpg
-    ```
-3.  **Start a local web server:**
-    If the game is browser-based (e.g., uses HTML, CSS, JavaScript), you can often run it using Python's built-in HTTP server.
-    ```bash
-    python -m http.server 8000
-    ```
-    (If you have Python 2, the command might be `python -m SimpleHTTPServer 8000`)
+## Technical Details
 
-4.  **Open the game in your browser:**
-    Open your web browser and go to `http://localhost:8000`.
+- Pure JavaScript (no frameworks)
+- Local storage for saves
+- Responsive design
+- Works offline
 
-Good luck, Investigator! The truth is out there in the ASCII.
+## File Structure
+
+```
+gaot-rpg/
+├── index.html           # Main game
+├── css/
+│   └── terminal.css     # Game styles
+├── js/
+│   └── game.js          # Game engine
+└── levels/
+    └── level-1-simple.js # Game content
+```
+
+## Development
+
+To modify the game:
+
+1. Edit `level-1-simple.js` to change the story
+2. Edit `game.js` to change mechanics
+3. Edit `terminal.css` to change appearance
+
+## Credits
+
+Created as a simple, accessible text adventure that anyone can play and enjoy!
