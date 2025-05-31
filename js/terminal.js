@@ -126,3 +126,12 @@ export class Terminal {
     this.showPrompt(); // Then, display the first prompt.
   }
 }
+
+window.addEventListener('load', () => {
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+        }, 2000); // Hide after 2 seconds
+    }
+});

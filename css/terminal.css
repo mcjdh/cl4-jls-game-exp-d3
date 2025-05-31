@@ -55,3 +55,24 @@ body {
         margin: 5px auto; /* Center buttons */
     }
 }
+
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    color: #0F0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    text-align: center;
+}
+
+#loading-screen p {
+    margin: 10px;
+    font-size: 1.2em; /* Example font size, can be adjusted */
+}
