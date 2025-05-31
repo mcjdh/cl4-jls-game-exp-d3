@@ -1,0 +1,57 @@
+body {
+    background-color: #000;
+    color: #0F0; /* Green text */
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#terminal {
+    flex-grow: 1;
+    padding: 10px;
+    overflow-y: auto; /* Allow scrolling if content overflows */
+    border-bottom: 1px solid #0F0; /* Green border */
+}
+
+#terminal p {
+    margin: 0 0 5px 0;
+}
+
+#button-row {
+    display: flex;
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+    justify-content: center;
+    padding: 10px;
+    border-top: 1px solid #0F0; /* Green border */
+}
+
+#button-row button {
+    background-color: #000;
+    color: #0F0; /* Green text */
+    border: 1px solid #0F0; /* Green border */
+    padding: 10px 15px;
+    margin: 5px;
+    font-family: 'Courier New', Courier, monospace;
+    cursor: pointer;
+    min-width: 80px; /* Ensure buttons are reasonably sized */
+}
+
+#button-row button:hover {
+    background-color: #0F0; /* Green background on hover */
+    color: #000; /* Black text on hover */
+}
+
+/* Basic mobile responsiveness */
+@media (max-width: 600px) {
+    #button-row {
+        flex-direction: column; /* Stack buttons vertically on small screens */
+    }
+
+    #button-row button {
+        width: 90%; /* Make buttons take more width */
+        margin: 5px auto; /* Center buttons */
+    }
+}
