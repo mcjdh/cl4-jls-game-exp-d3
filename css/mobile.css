@@ -1,12 +1,10 @@
 /* Styles for mobile devices */
 
-@media (max-width: 600px) {
-    #button-row button {
+@media (max-width: 600px) {    #button-row button {
         min-height: 44px;
         padding: 12px 10px;
         margin: 8px auto; /* Adjusted margin for centering and spacing */
         font-size: 0.9em; /* Slightly smaller font for mobile */
-        /* width: 90%; /* This is already handled in terminal.css, but explicitly stating it here for clarity or override if needed */
     }
 
     #terminal p {

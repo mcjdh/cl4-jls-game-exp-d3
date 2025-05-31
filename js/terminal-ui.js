@@ -30,15 +30,21 @@ class TerminalUI {
     // Show prompt
     this.showPrompt();
   }
-
   setupButtons() {
+    if (!this.commandButtons || !Array.isArray(this.commandButtons)) {
+      console.warn('TerminalUI: No command buttons provided');
+      return;
+    }
+    
     this.commandButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const command = button.getAttribute('data-command');
-        if (command) {
-          this.processInput(command);
-        }
-      });
+      if (button && typeof button.addEventListener === 'function') {
+        button.addEventListener('click', () => {
+          const command = button.getAttribute('data-command');
+          if (command) {
+            this.processInput(command);
+          }
+        });
+      }
     });
   }
 
@@ -57,11 +63,15 @@ class TerminalUI {
       }
     });
   }
-
   writeLine(text) {
+    if (!this.element) {
+      console.error('TerminalUI: No terminal element available');
+      return;
+    }
+    
     const line = document.createElement('div');
     line.className = 'terminal-line';
-    line.textContent = text;
+    line.textContent = text || '';
     this.element.appendChild(line);
     this.element.scrollTop = this.element.scrollHeight;
   }

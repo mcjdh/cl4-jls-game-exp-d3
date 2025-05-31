@@ -42,17 +42,22 @@ if (typeof window !== 'undefined' && window.levelData_level1) {
  * @returns {object|null} The level data object or null if not loaded.
  */
 function loadLevel1Data() {
-  if (!level1Data || level1Data.id === 'level-1-placeholder') {
+  try {
+    if (!level1Data || level1Data.id === 'level-1-placeholder') {
       console.error('LevelLoader: Actual level-1 data is not loaded. Returning placeholder or null.');
       // Try to re-access if it became available globally after initial load
       if (typeof window !== 'undefined' && window.levelData_level1) {
-          level1Data = window.levelData_level1;
-          console.log('LevelLoader: Re-accessed level-1 data from global scope.');
+        level1Data = window.levelData_level1;
+        console.log('LevelLoader: Re-accessed level-1 data from global scope.');
       } else {
-          return null; // Or return the placeholder if that's preferred
+        return null; // Or return the placeholder if that's preferred
       }
+    }
+    return level1Data;
+  } catch (error) {
+    console.error('LevelLoader: Error loading level data:', error);
+    return null;
   }
-  return level1Data;
 }
 
 /**

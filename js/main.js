@@ -15,13 +15,16 @@
       
       // Create terminal UI
       terminalUI = new TerminalUI(terminalElement, engine, commandButtons);
-      terminalUI.init();
-        // Load saved state if available
+      terminalUI.init();      // Load saved state if available
       if (typeof GameState !== 'undefined') {
-        const savedState = GameState.loadState();
-        if (savedState.currentLocation) {
-          // Merge saved state with engine state
-          Object.assign(engine.gameState, savedState);
+        try {
+          const savedState = GameState.loadState();
+          if (savedState && savedState.currentLocation) {
+            // Merge saved state with engine state
+            Object.assign(engine.gameState, savedState);
+          }
+        } catch (error) {
+          console.error('Error loading saved state:', error);
         }
       }
       

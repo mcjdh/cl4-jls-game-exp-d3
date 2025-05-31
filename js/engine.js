@@ -30,10 +30,10 @@ class GameEngine {
   lookAround() {
     const location = this.getCurrentLocation();
     if (!location) {
-      this.display("You are nowhere...");
-      return;
+      this.display("You are nowhere...");      return;
     }
-      this.display("Location: " + location.name);
+    
+    this.display("Location: " + location.name);
     this.display(location.description);
     
     if (location.items && location.items.length > 0) {
@@ -50,18 +50,30 @@ class GameEngine {
       this.checkVictory();
     }
   }
-
   getCurrentLocation() {
-    if (!this.currentLevel || !this.gameState.currentLocation) return null;
-    return this.currentLevel.locations[this.gameState.currentLocation];
+    if (!this.currentLevel || !this.gameState.currentLocation) {
+      console.warn('Engine: No current level or location set');
+      return null;
+    }
+    const location = this.currentLevel.locations[this.gameState.currentLocation];
+    if (!location) {
+      console.error(`Engine: Location '${this.gameState.currentLocation}' not found in current level`);
+      return null;
+    }
+    return location;
   }
-
   parseCommand(input) {
+    if (!input || typeof input !== 'string') {
+      this.display("Invalid command. Type 'help' for available commands.");
+      return;
+    }
+    
     const parts = input.trim().toLowerCase().split(/\s+/);
     const command = parts[0];
     const args = parts.slice(1).join(' ');
 
-    switch (command) {      case 'look':
+    switch (command) {
+      case 'look':
       case 'examine':
         if (args) {
           this.examineItem(args);
@@ -136,13 +148,13 @@ class GameEngine {
       if (item && item.takeable !== false) {
         location.items.splice(itemIndex, 1);
         this.gameState.inventory.push(itemName);
-        this.display("You take the " + itemName + ".");
-          // Update game state
+        this.display("You take the " + itemName + ".");        // Update game state
         if (typeof GameState !== 'undefined') {
           GameState.addItemToInventory(itemName);
           // Sync flags to external state if they exist
           if (this.gameState.flags) {
-            GameState.getGameState().flags = this.gameState.flags;
+            const externalState = GameState.getGameState();
+            Object.assign(externalState.flags, this.gameState.flags);
           }
           GameState.saveState();
         }
@@ -168,13 +180,12 @@ class GameEngine {
         // Set flag for examined non-takeable items
         if (item.takeable === false) {
           if (!this.gameState.flags) this.gameState.flags = {};
-          this.gameState.flags['examined' + itemName.charAt(0).toUpperCase() + itemName.slice(1)] = true;
-            // Save state
+          this.gameState.flags['examined' + itemName.charAt(0).toUpperCase() + itemName.slice(1)] = true;          // Save state
           if (typeof GameState !== 'undefined') {
             // Sync flags to external state
             if (this.gameState.flags) {
-              const state = GameState.getGameState();
-              state.flags = this.gameState.flags;
+              const externalState = GameState.getGameState();
+              Object.assign(externalState.flags, this.gameState.flags);
             }
             GameState.saveState();
           }
@@ -204,7 +215,8 @@ class GameEngine {
     // Check if there's an NPC here
     if (location.npcs && location.npcs.includes(target)) {
       const npc = this.currentLevel.npcs[target];
-      if (npc) {        // Simple dialogue based on game state
+      if (npc) {
+        // Simple dialogue based on game state
         if (this.gameState.goatFound && npc.dialogue.goatFound) {
           this.display(npc.name + ": " + npc.dialogue.goatFound);
         } else if ((this.gameState.inventory.includes('tracks') || this.gameState.flags.examinedTracks) && npc.dialogue.foundClue2) {
@@ -226,7 +238,9 @@ class GameEngine {
     } else {
       this.display("You are carrying: " + this.gameState.inventory.join(", "));
     }
-  }  showHelp() {
+  }
+
+  showHelp() {
     this.display("Available commands:");
     this.display("- look/examine: Look around");
     this.display("- examine [item]: Look closely at an item");

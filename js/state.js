@@ -78,10 +78,10 @@ function saveState() {
 
 // Function to load the game state from localStorage
 function loadState() {
-  try {
-    const savedState = localStorage.getItem(GAME_STATE_KEY);
+  try {    const savedState = localStorage.getItem(GAME_STATE_KEY);
     if (savedState) {
-      const parsedState = JSON.parse(savedState);      // Basic validation of the loaded state
+      const parsedState = JSON.parse(savedState);
+      // Basic validation of the loaded state
       if (parsedState && typeof parsedState.currentLocation !== 'undefined' && Array.isArray(parsedState.inventory) && Array.isArray(parsedState.collectedClues)) {
         // Ensure flags property exists
         if (!parsedState.flags) parsedState.flags = {};
@@ -96,14 +96,13 @@ function loadState() {
     } else {
       console.log('State: No saved game state found in localStorage. Using default state.');
       // Initialize with default if no state found.
-      gameState = { currentLocation: null, inventory: [], collectedClues: [] };
+      gameState = { currentLocation: null, inventory: [], collectedClues: [], flags: {} };
       // Optionally save the fresh default state immediately
       // saveState();
     }
-  } catch (error) {
-    console.error('State: Error loading game state from localStorage:', error);
+  } catch (error) {    console.error('State: Error loading game state from localStorage:', error);
     // Fallback to default state in case of any error
-    gameState = { currentLocation: null, inventory: [], collectedClues: [] };
+    gameState = { currentLocation: null, inventory: [], collectedClues: [], flags: {} };
   }
   return getGameState(); // Return the loaded (or default) state
 }
@@ -113,6 +112,7 @@ function resetState(initialLocation = null) {
     gameState.currentLocation = initialLocation;
     gameState.inventory = [];
     gameState.collectedClues = [];
+    gameState.flags = {};
     console.log('State: Game state has been reset.');
     saveState(); // Save the reset state
 }
