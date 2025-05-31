@@ -15,17 +15,51 @@
     (='.'=)
     (")_(")
         </pre>
-    </div>
-    <div id="terminal"></div>    <div id="button-row">
-        <button data-command="look">EXAMINE</button>
-        <button data-command="inventory">INVENTORY</button>
-        <button data-command="help">HELP</button>
-        <button data-command="north">NORTH</button>
-        <button data-command="south">SOUTH</button>
-        <button data-command="east">EAST</button>
-        <button data-command="west">WEST</button>
-        <button data-command="up">UP</button>
-        <button data-command="down">DOWN</button>
+    </div>    <div id="terminal"></div>
+    
+    <div id="button-row">
+        <!-- Primary Action Buttons -->
+        <div class="primary-controls">
+            <button data-command="look">
+                🔍 LOOK
+                <div class="button-label">Examine area</div>
+            </button>
+            <button data-command="inventory">
+                🎒 ITEMS
+                <div class="button-label">Check inventory</div>
+            </button>
+            <button data-command="help">
+                ❓ HELP
+                <div class="button-label">Show commands</div>
+            </button>
+            <button data-command="talk" class="context-button" style="display: none;">
+                💬 TALK
+                <div class="button-label">Speak to someone</div>
+            </button>
+        </div>
+
+        <!-- Context Help -->
+        <div class="context-help">
+            💡 Tap LOOK to examine your surroundings • Use movement buttons to explore
+        </div>
+
+        <!-- Movement Section -->
+        <div class="movement-section">
+            <div class="movement-header">🧭 MOVEMENT</div>
+              <!-- Cardinal Directions -->
+            <div class="movement-grid">
+                <button data-command="north">⬆️<br>NORTH</button>
+                <button data-command="west">⬅️<br>WEST</button>
+                <button data-command="east">➡️<br>EAST</button>
+                <button data-command="south">⬇️<br>SOUTH</button>
+            </div>
+            
+            <!-- Vertical Movement -->
+            <div class="vertical-movement">
+                <button data-command="up">🪜 UP</button>
+                <button data-command="down">🪜 DOWN</button>
+            </div>
+        </div>
     </div>
     
     <!-- Load scripts in correct order -->

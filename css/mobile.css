@@ -1,15 +1,231 @@
-/* Styles for mobile devices */
+/* Enhanced Mobile Interface for Tap Controls */
 
-@media (max-width: 600px) {
-    #button-row button {
-        min-height: 44px;
-        padding: 12px 10px;
-        margin: 8px auto; /* Adjusted margin for centering and spacing */
-        font-size: 0.9em; /* Slightly smaller font for mobile */
+@media (max-width: 768px) {
+    body {
+        padding: 0;
+        margin: 0;
+    }
+
+    #terminal {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 15px;
+        max-height: 55vh; /* More space for controls */
+        line-height: 1.6;
     }
 
     #terminal p {
-        font-size: 0.9em; /* Adjust font size for better readability on mobile */
-        line-height: 1.4; /* Improve text flow */
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 8px;
+    }
+
+    /* Mobile-First Control Layout */
+    #button-row {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+        background: #000;
+        border-top: 2px solid #0F0;
+        position: relative;
+    }
+
+    /* Primary Action Buttons - Always Visible */
+    .primary-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .primary-controls button {
+        background: linear-gradient(145deg, #001100, #003300);
+        color: #00FF00;
+        border: 2px solid #0F0;
+        border-radius: 8px;
+        padding: 18px 12px;
+        font-size: 16px;
+        font-weight: bold;
+        font-family: 'Courier New', Courier, monospace;
+        min-height: 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 8px rgba(0, 255, 0, 0.2);
+        transition: all 0.2s ease;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .primary-controls button:active {
+        background: #0F0;
+        color: #000;
+        transform: translateY(2px);
+        box-shadow: 0 2px 4px rgba(0, 255, 0, 0.4);
+    }
+
+    .button-label {
+        font-size: 14px;
+        font-weight: normal;
+        opacity: 0.8;
+        margin-top: 4px;
+    }
+
+    /* Movement Controls Section */
+    .movement-section {
+        border-top: 1px solid #0F0;
+        padding-top: 15px;
+    }
+
+    .movement-header {
+        text-align: center;
+        color: #0F0;
+        font-size: 14px;
+        font-family: 'Courier New', Courier, monospace;
+        margin-bottom: 12px;
+        opacity: 0.8;
+    }
+
+    .movement-grid {
+        display: grid;
+        grid-template-areas: 
+            ".    up    ."
+            "west . east"
+            ".   down   .";
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+        max-width: 250px;
+        margin: 0 auto 15px auto;
+    }
+
+    .movement-grid button {
+        background: #000;
+        color: #0F0;
+        border: 1px solid #0F0;
+        border-radius: 6px;
+        padding: 15px 8px;
+        font-size: 14px;
+        font-family: 'Courier New', Courier, monospace;
+        min-height: 50px;
+        transition: all 0.2s ease;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .movement-grid button:active {
+        background: #0F0;
+        color: #000;
+        transform: scale(0.95);
+    }
+
+    .movement-grid button[data-command="north"] { grid-area: up; }
+    .movement-grid button[data-command="south"] { grid-area: down; }
+    .movement-grid button[data-command="east"] { grid-area: east; }
+    .movement-grid button[data-command="west"] { grid-area: west; }
+
+    /* Vertical Movement */
+    .vertical-movement {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        max-width: 200px;
+        margin: 0 auto;
+    }
+
+    .vertical-movement button {
+        background: #000;
+        color: #0F0;
+        border: 1px solid #0F0;
+        border-radius: 6px;
+        padding: 12px 8px;
+        font-size: 14px;
+        font-family: 'Courier New', Courier, monospace;
+        min-height: 45px;
+        transition: all 0.2s ease;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .vertical-movement button:active {
+        background: #0F0;
+        color: #000;
+        transform: scale(0.95);
+    }
+
+    /* Context Help */
+    .context-help {
+        background: rgba(0, 255, 0, 0.1);
+        border: 1px solid #0F0;
+        border-radius: 6px;
+        padding: 10px;
+        margin: 15px 0 5px 0;
+        font-size: 12px;
+        color: #0F0;
+        font-family: 'Courier New', Courier, monospace;
+        text-align: center;
+        opacity: 0.7;
+    }
+
+    /* Hide original button styling on mobile */
+    #button-row button:not(.primary-controls button):not(.movement-grid button):not(.vertical-movement button) {
+        display: none;
+    }
+
+    /* Override any desktop button styling */
+    #button-row {
+        grid-template-columns: none !important;
+        grid-template-areas: none !important;
+    }
+    
+    /* Hide any buttons not part of the new mobile layout */
+    #button-row > button:not(.primary-controls button):not(.movement-grid button):not(.vertical-movement button) {
+        display: none !important;
+    }
+    
+    /* Ensure text is readable on all devices */
+    body, #terminal, button {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+    
+    /* Smooth scrolling for better UX */
+    #terminal {
+        scroll-behavior: smooth;
+    }
+    
+    /* Better tap targets */
+    button {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+    #terminal {
+        max-height: 50vh;
+        padding: 12px;
+        font-size: 15px;
+    }
+
+    .primary-controls {
+        gap: 10px;
+    }
+
+    .primary-controls button {
+        padding: 15px 10px;
+        min-height: 55px;
+        font-size: 15px;
+    }
+
+    .movement-grid {
+        max-width: 220px;
+    }
+
+    .movement-grid button {
+        padding: 12px 6px;
+        min-height: 45px;
+        font-size: 13px;
     }
 }

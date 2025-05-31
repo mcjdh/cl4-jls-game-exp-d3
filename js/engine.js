@@ -25,31 +25,49 @@ class GameEngine {
     this.display(levelData.opening_message);
     this.display("");
     this.lookAround();
-  }
-  lookAround() {
+  }  lookAround() {
     const location = this.getCurrentLocation();
     if (!location) {
       this.display("You are nowhere...");
       return;
     }
     
-    this.display("Location: " + location.name);
+    // Enhanced location display for better mobile experience
+    this.display("📍 " + location.name);
     this.display(location.description);
+    this.display("");
     
+    // Available exits with clear mobile-friendly formatting
+    const connections = location.connections || {};
+    const exits = Object.keys(connections);
+    if (exits.length > 0) {
+      this.display("🧭 You can go: " + exits.map(exit => exit.toUpperCase()).join(", "));
+    } else {
+      this.display("🚫 No obvious exits from here.");
+    }
+    
+    // Items with better visibility
     if (location.items && location.items.length > 0) {
-      this.display("You see: " + location.items.join(", "));
+      this.display("👀 You see: " + location.items.join(", "));
+      this.display("💡 Tip: Try 'take [item name]' to pick up items");
     }
     
+    // NPCs with interaction hints
     if (location.npcs && location.npcs.length > 0) {
-      this.display("People here: " + location.npcs.join(", "));
+      this.display("👥 People here: " + location.npcs.join(", "));
+      this.display("💬 Tip: Try 'talk [person name]' to speak with them");
     }
     
+    // Special events
     if (location.special === 'goat_found' && !this.gameState.goatFound) {
       this.gameState.goatFound = true;
-      this.display("\n*** You found Geraldine the goat! ***");
+      this.display("");
+      this.display("🐐 *** You found Geraldine the goat! ***");
       this.checkVictory();
     }
-  }  getCurrentLocation() {
+    
+    this.display("");
+  }getCurrentLocation() {
     if (!this.currentLevel || !this.gameState.currentLocation) {
       return null;
     }
@@ -114,25 +132,31 @@ class GameEngine {
       default:
         this.display("I don't understand that command. Type 'help' for available commands.");
     }
-  }
-  move(direction) {
+  }  move(direction) {
     const location = this.getCurrentLocation();
     if (!location) return;
     
     if (location.connections && location.connections[direction]) {
       this.gameState.currentLocation = location.connections[direction];
-      this.display("\nYou go " + direction + "...\n");
+      this.display("🚶 You go " + direction.toUpperCase() + "...");
+      this.display("");
       this.lookAround();
       
       // Update game state
       if (typeof GameState !== 'undefined') {
         GameState.updateLocation(this.gameState.currentLocation);
         GameState.saveState();
+      }    } else {
+      const availableExits = Object.keys(location.connections || {});
+      if (availableExits.length > 0) {
+        this.display("❌ You can't go " + direction.toUpperCase() + " from here.");
+        this.display("🧭 Available directions: " + availableExits.map(exit => exit.toUpperCase()).join(", "));
+      } else {
+        this.display("❌ There are no exits from this location.");
       }
-    } else {
-      this.display("You can't go that way.");
     }
   }
+
   takeItem(itemName) {
     const location = this.getCurrentLocation();
     if (!location || !location.items) {
@@ -186,13 +210,17 @@ class GameEngine {
             // Sync flags to external state
             if (this.gameState.flags) {
               const externalState = GameState.getGameState();
-              Object.assign(externalState.flags, this.gameState.flags);
+              if (externalState && externalState.flags) { // Ensure externalState.flags exists
+                Object.assign(externalState.flags, this.gameState.flags);
+              } else if (externalState) { // Initialize flags if it doesn't exist
+                externalState.flags = { ...this.gameState.flags };
+              }
             }
             GameState.saveState();
           }
         }
       } else {
-        this.display("You don't see anything special about the " + itemName + ".");
+        this.display("You look at the " + itemName + ", but there's nothing more to see."); // Changed message for undefined item
       }
     } else if (this.gameState.inventory.includes(itemName)) {
       // Check inventory
@@ -206,68 +234,79 @@ class GameEngine {
     }
   }
 
-  talkTo(target) {
+  talkTo(npcName) {
     const location = this.getCurrentLocation();
-    if (!location || !target) {
-      this.display("Talk to whom?");
+    if (!location || !location.npcs || !location.npcs.includes(npcName)) {
+      this.display(`There is no one named '${npcName}' here.`);
       return;
     }
-    
-    // Check if there's an NPC here
-    if (location.npcs && location.npcs.includes(target)) {
-      const npc = this.currentLevel.npcs[target];
-      if (npc) {
-        // Simple dialogue based on game state
-        if (this.gameState.goatFound && npc.dialogue.goatFound) {
-          this.display(npc.name + ": " + npc.dialogue.goatFound);
-        } else if ((this.gameState.inventory.includes('tracks') || this.gameState.flags.examinedTracks) && npc.dialogue.foundClue2) {
-          this.display(npc.name + ": " + npc.dialogue.foundClue2);
-        } else if (this.gameState.inventory.includes('wool') && npc.dialogue.foundClue1) {
-          this.display(npc.name + ": " + npc.dialogue.foundClue1);
-        } else if (npc.dialogue.initial) {
-          this.display(npc.name + ": " + npc.dialogue.initial);
+
+    const npc = this.currentLevel.npcs[npcName];
+    if (npc && npc.dialogue) {
+      this.display(`${npc.name} says: "${npc.dialogue}"`);
+      // Potentially trigger flags or events based on dialogue
+      if (npc.triggersFlag) {
+        this.gameState.flags[npc.triggersFlag] = true;
+        if (typeof GameState !== 'undefined') {
+          const externalState = GameState.getGameState();
+          if (externalState && externalState.flags) {
+            externalState.flags[npc.triggersFlag] = true;
+          } else if (externalState) {
+            externalState.flags = { [npc.triggersFlag]: true };
+          }
+          GameState.saveState();
         }
       }
     } else {
-      this.display("There's no " + target + " here to talk to.");
+      this.display(npcName + " doesn't have much to say.");
     }
   }
-
   showInventory() {
+    this.display("🎒 YOUR INVENTORY:");
     if (this.gameState.inventory.length === 0) {
-      this.display("You're not carrying anything.");
+      this.display("Your backpack is empty.");
+      this.display("💡 Tip: Look around and take items to help solve the mystery!");
     } else {
       this.display("You are carrying: " + this.gameState.inventory.join(", "));
+      this.display("📦 Total items: " + this.gameState.inventory.length);
+    }
+    this.display("");
+  }
+  showHelp() {
+    this.display("🎮 GAME COMMANDS:");
+    this.display("");
+    this.display("🔍 LOOK/EXAMINE - Look around or examine an item");
+    this.display("   Example: 'look' or 'examine wool'");
+    this.display("");
+    this.display("🚶 MOVEMENT - Move in any direction");
+    this.display("   Use the direction buttons or type: north, south, east, west, up, down");
+    this.display("");
+    this.display("✋ TAKE/GET - Pick up items");
+    this.display("   Example: 'take wool' or 'get tracks'");
+    this.display("");
+    this.display("💬 TALK - Speak with people");
+    this.display("   Example: 'talk farmer'");
+    this.display("");
+    this.display("🎒 INVENTORY - Check what you're carrying");
+    this.display("   Shows all items in your possession");
+    this.display("");
+    this.display("📱 MOBILE TIP: Use the green buttons for easy play!");
+    this.display("Start with LOOK to examine your surroundings.");
+    this.display("");
+  }
+
+  checkVictory() {
+    // This method should be implemented based on the game's win conditions.
+    // For example, checking if a certain flag is set or item is possessed.
+    if (this.currentLevel && typeof this.currentLevel.endCondition === 'function') {
+      if (this.currentLevel.endCondition(this.gameState)) {
+        this.display("\n*** Congratulations! You have won! ***");
+        // Potentially end the game or move to a new state
+      }
+    } else if (this.gameState.goatFound) { // Fallback for original goatFound logic
+        this.display("\n*** You completed the current objectives! ***");
     }
   }
 
-  showHelp() {
-    this.display("Available commands:");
-    this.display("- look/examine: Look around");
-    this.display("- examine [item]: Look closely at an item");
-    this.display("- go [direction]: Move in a direction");
-    this.display("- north/south/east/west/up/down: Move in that direction");
-    this.display("- take/get [item]: Pick up an item");
-    this.display("- talk [person]: Talk to someone");
-    this.display("- inventory/i: Check your inventory");
-    this.display("- help: Show this help");
-  }  checkVictory() {
-    if (this.currentLevel && this.currentLevel.endCondition && typeof this.currentLevel.endCondition === 'function') {
-      try {
-        if (this.currentLevel.endCondition(this.gameState)) {
-          const result = this.currentLevel.onComplete ? this.currentLevel.onComplete(this.gameState) : null;
-          if (result && result.title && result.message) {
-            this.display("\n" + result.title);
-            this.display(result.message);
-            this.display("\nThank you for playing!");
-          } else {
-            this.display("\nVictory achieved!");
-            this.display("\nThank you for playing!");
-          }
-        }
-      } catch (error) {
-        this.display("Victory condition check failed. Please report this bug.");
-      }
-    }
-  }
+  // Example of a simple flag system
 }
