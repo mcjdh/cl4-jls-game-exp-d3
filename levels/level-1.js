@@ -43,7 +43,12 @@ const level = {
         down: 'barn'
       },
       items: [],
-      npcs: []
+      npcs: [], // Geraldine is not an NPC here
+      hiddenInteractions: {
+        TALK: {
+          GERALDINE: "Geraldine bleats happily, nudging your hand, then seems to stare intently at a slightly loose floorboard in the corner."
+        }
+      }
     }
   },
   npcs: {
@@ -102,25 +107,11 @@ const level = {
     // This is where level-specific completion logic happens.
 
     // For QUICK-003, the main requirement is discovering the goat.
-    // A message is good for now. The engine might handle more complex UI updates.
-    const victoryMessage = "Victory! You found Geraldine, the prized goat, hiding in the barn loft! The Worried Farmer will be overjoyed.";
-    console.log(victoryMessage);
-
-    // Game engine integration point:
-    // The engine could now:
-    // 1. Display this message in the game's UI.
-    // 2. Update the Worried Farmer's NPC state to use the 'goatFound' dialogue.
-    //    Example: if (gameState && this.npcs.farmer) {
-    //               gameState.setNpcDialogueState('farmer', 'goatFound');
-    //            }
-    // 3. Potentially unlock new areas, items, or the next level.
-    // 4. Save the game state marking this level as complete.
-
-    // For the purpose of this QUICK-003 task, the console log and clear indication of
-    // where engine integration would occur is sufficient.
     return {
-        message: victoryMessage,
-        nextActions: ["updateFarmerDialogueToFound", "triggerLevelEndSequence"] // Example data for engine
+      title: "--- VICTORY! ---",
+      message: "You found Geraldine, the prized goat, hiding in the barn loft! The Worried Farmer will be overjoyed.",
+      asciiArtKey: "GOAT_VICTORY_ART", // Placeholder for ASCII art
+      nextActions: ["showCredits"] // Suggests engine should call credits
     };
   }
 };
