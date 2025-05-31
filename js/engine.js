@@ -26,11 +26,11 @@ class GameEngine {
     this.display("");
     this.lookAround();
   }
-
   lookAround() {
     const location = this.getCurrentLocation();
     if (!location) {
-      this.display("You are nowhere...");      return;
+      this.display("You are nowhere...");
+      return;
     }
     
     this.display("Location: " + location.name);
@@ -49,15 +49,12 @@ class GameEngine {
       this.display("\n*** You found Geraldine the goat! ***");
       this.checkVictory();
     }
-  }
-  getCurrentLocation() {
+  }  getCurrentLocation() {
     if (!this.currentLevel || !this.gameState.currentLocation) {
-      console.warn('Engine: No current level or location set');
       return null;
     }
     const location = this.currentLevel.locations[this.gameState.currentLocation];
     if (!location) {
-      console.error(`Engine: Location '${this.gameState.currentLocation}' not found in current level`);
       return null;
     }
     return location;
@@ -118,7 +115,6 @@ class GameEngine {
         this.display("I don't understand that command. Type 'help' for available commands.");
     }
   }
-
   move(direction) {
     const location = this.getCurrentLocation();
     if (!location) return;
@@ -137,10 +133,12 @@ class GameEngine {
       this.display("You can't go that way.");
     }
   }
-
   takeItem(itemName) {
     const location = this.getCurrentLocation();
-    if (!location || !location.items) return;
+    if (!location || !location.items) {
+      this.display("There's nothing to take here.");
+      return;
+    }
     
     const itemIndex = location.items.indexOf(itemName);
     if (itemIndex !== -1) {
@@ -148,7 +146,9 @@ class GameEngine {
       if (item && item.takeable !== false) {
         location.items.splice(itemIndex, 1);
         this.gameState.inventory.push(itemName);
-        this.display("You take the " + itemName + ".");        // Update game state
+        this.display("You take the " + itemName + ".");
+        
+        // Update game state
         if (typeof GameState !== 'undefined') {
           GameState.addItemToInventory(itemName);
           // Sync flags to external state if they exist
@@ -176,11 +176,12 @@ class GameEngine {
       if (item) {
         this.display("You examine the " + itemName + ":");
         this.display(item.description);
-        
-        // Set flag for examined non-takeable items
+          // Set flag for examined non-takeable items
         if (item.takeable === false) {
           if (!this.gameState.flags) this.gameState.flags = {};
-          this.gameState.flags['examined' + itemName.charAt(0).toUpperCase() + itemName.slice(1)] = true;          // Save state
+          this.gameState.flags['examined' + itemName.charAt(0).toUpperCase() + itemName.slice(1)] = true;
+          
+          // Save state
           if (typeof GameState !== 'undefined') {
             // Sync flags to external state
             if (this.gameState.flags) {
@@ -250,15 +251,22 @@ class GameEngine {
     this.display("- talk [person]: Talk to someone");
     this.display("- inventory/i: Check your inventory");
     this.display("- help: Show this help");
-  }
-
-  checkVictory() {
-    if (this.currentLevel && this.currentLevel.endCondition) {
-      if (this.currentLevel.endCondition(this.gameState)) {
-        const result = this.currentLevel.onComplete(this.gameState);
-        this.display("\n" + result.title);
-        this.display(result.message);
-        this.display("\nThank you for playing!");
+  }  checkVictory() {
+    if (this.currentLevel && this.currentLevel.endCondition && typeof this.currentLevel.endCondition === 'function') {
+      try {
+        if (this.currentLevel.endCondition(this.gameState)) {
+          const result = this.currentLevel.onComplete ? this.currentLevel.onComplete(this.gameState) : null;
+          if (result && result.title && result.message) {
+            this.display("\n" + result.title);
+            this.display(result.message);
+            this.display("\nThank you for playing!");
+          } else {
+            this.display("\nVictory achieved!");
+            this.display("\nThank you for playing!");
+          }
+        }
+      } catch (error) {
+        this.display("Victory condition check failed. Please report this bug.");
       }
     }
   }

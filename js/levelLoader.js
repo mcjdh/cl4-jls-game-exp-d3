@@ -9,22 +9,20 @@ let level1Data = null;
 // Option 1: If level-1.js assigns its data to a global variable (e.g., window.level1Data_level1)
 if (typeof window !== 'undefined' && window.levelData_level1) {
   level1Data = window.levelData_level1;
-  console.log('LevelLoader: Successfully accessed level-1 data from global scope.');
 } else {
   // Fallback or placeholder:
   // In a more complex setup, this might dynamically load or await the level script.
-  // For QUICK-005, we'll log a warning if it's not found globally.
+  // For QUICK-005, we'll use a minimal placeholder if it's not found globally.
   // The actual level-1.js provided seems to use 'export default level',
   // which is ES6 module syntax. If not using ES modules in the browser directly,
   // it would need to be adapted or loaded differently (e.g. by the GameEngine).
-  console.warn('LevelLoader: level-1.js data not found in global scope (window.levelData_level1). Ensure level-1.js is loaded and makes its data accessible.');
+  
   // As a placeholder for structure, we can define a minimal dummy level object.
   level1Data = {
     id: 'level-1-placeholder',
     name: 'Placeholder Level',
     startLocation: 'placeholder-start',
     endCondition: function(gs) {
-      console.warn("Using placeholder endCondition.");
       return false;
     },
     // other properties from level-1.js structure...
@@ -44,18 +42,15 @@ if (typeof window !== 'undefined' && window.levelData_level1) {
 function loadLevel1Data() {
   try {
     if (!level1Data || level1Data.id === 'level-1-placeholder') {
-      console.error('LevelLoader: Actual level-1 data is not loaded. Returning placeholder or null.');
       // Try to re-access if it became available globally after initial load
       if (typeof window !== 'undefined' && window.levelData_level1) {
         level1Data = window.levelData_level1;
-        console.log('LevelLoader: Re-accessed level-1 data from global scope.');
       } else {
         return null; // Or return the placeholder if that's preferred
       }
     }
     return level1Data;
   } catch (error) {
-    console.error('LevelLoader: Error loading level data:', error);
     return null;
   }
 }
@@ -70,22 +65,23 @@ function checkWinCondition(gameState) {
   const currentLevelData = loadLevel1Data();
 
   if (!currentLevelData) {
-    console.error('LevelLoader: Cannot check win condition, level data not loaded.');
     return false;
   }
 
   if (typeof currentLevelData.endCondition !== 'function') {
-    console.error('LevelLoader: endCondition is not defined or not a function in level data.');
     return false;
   }
 
   if (!gameState) {
-    console.error('LevelLoader: gameState not provided to checkWinCondition.');
     return false;
   }
 
-  // Call the endCondition function from the level data
-  return currentLevelData.endCondition(gameState);
+  try {
+    // Call the endCondition function from the level data
+    return currentLevelData.endCondition(gameState);
+  } catch (error) {
+    return false;
+  }
 }
 
 // For non-ES6 module environments, make functions available.

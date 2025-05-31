@@ -8,10 +8,11 @@ class TerminalUI {
     // Set up engine output callback
     this.engine.outputCallback = (text) => this.writeLine(text);
   }
-
   init() {
     // Clear terminal
-    this.element.innerHTML = '';
+    if (this.element) {
+      this.element.innerHTML = '';
+    }
     
     // Hide loading screen
     const loadingScreen = document.getElementById('loading-screen');
@@ -29,10 +30,8 @@ class TerminalUI {
     
     // Show prompt
     this.showPrompt();
-  }
-  setupButtons() {
+  }  setupButtons() {
     if (!this.commandButtons || !Array.isArray(this.commandButtons)) {
-      console.warn('TerminalUI: No command buttons provided');
       return;
     }
     
@@ -62,10 +61,8 @@ class TerminalUI {
         this.updateCurrentLine();
       }
     });
-  }
-  writeLine(text) {
+  }  writeLine(text) {
     if (!this.element) {
-      console.error('TerminalUI: No terminal element available');
       return;
     }
     
@@ -89,20 +86,26 @@ class TerminalUI {
     if (inputSpan) {
       inputSpan.textContent = this.inputBuffer;
     }
-  }
-
-  processInput(input) {
-    if (!input.trim()) return;
+  }  processInput(input) {
+    if (!input || typeof input !== 'string' || !input.trim()) {
+      return;
+    }
+    
+    const cleanInput = input.trim();
     
     // Remove current prompt
     const prompt = this.element.querySelector('.terminal-prompt');
     if (prompt) {
       prompt.classList.remove('terminal-prompt');
-      prompt.innerHTML = '> ' + input;
+      prompt.innerHTML = '> ' + cleanInput;
     }
     
     // Process command
-    this.engine.parseCommand(input);
+    try {
+      this.engine.parseCommand(cleanInput);
+    } catch (error) {
+      this.writeLine("Error processing command. Please try again.");
+    }
     
     // Show new prompt
     this.showPrompt();

@@ -36,8 +36,7 @@ window.levelData_level1 = {
       },
       items: ['tracks'],
       npcs: []
-    },
-    'loft': {
+    },    'loft': {
       id: 'loft',
       name: 'The Barn Loft',
       description: 'A dusty barn loft filled with hay. Wait... is that movement in the corner? It\'s Geraldine the goat! You can go DOWN to the barn.',

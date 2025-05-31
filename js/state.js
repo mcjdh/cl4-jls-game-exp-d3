@@ -19,10 +19,7 @@ function getGameState() {
 function updateLocation(newLocation) {
   if (typeof newLocation === 'string') {
     gameState.currentLocation = newLocation;
-    console.log(`State: Location updated to ${newLocation}`);
     // Consider calling saveState() here if auto-save on location change is desired
-  } else {
-    console.error('State: updateLocation expects a string argument.');
   }
 }
 
@@ -30,19 +27,14 @@ function updateLocation(newLocation) {
 function addItemToInventory(itemId) {
   if (typeof itemId === 'string' && !gameState.inventory.includes(itemId)) {
     gameState.inventory.push(itemId);
-    console.log(`State: ${itemId} added to inventory.`);
     // For QUICK-005, all inventory items that are clues are also added to collectedClues
     // A more sophisticated system might differentiate them.
     if (itemId.startsWith('clue')) {
         if (!gameState.collectedClues.includes(itemId)) {
             gameState.collectedClues.push(itemId);
-            console.log(`State: ${itemId} recorded as collected clue.`);
         }
     }
     // Consider calling saveState() here
-  } else {
-    if (typeof itemId !== 'string') console.error('State: addItemToInventory expects a string argument.');
-    else console.warn(`State: ${itemId} already in inventory or invalid.`);
   }
 }
 
@@ -56,13 +48,8 @@ function addClue(clueId) {
     // Also add to general inventory for simplicity in QUICK-005
     if (!gameState.inventory.includes(clueId)) {
       gameState.inventory.push(clueId);
-      console.log(`State: ${clueId} added to inventory as part of clue collection.`);
     }
-    console.log(`State: ${clueId} added to collectedClues.`);
     // Consider calling saveState() here
-  } else {
-     if (typeof clueId !== 'string') console.error('State: addClue expects a string argument.');
-    else console.warn(`State: ${clueId} already in collectedClues or invalid.`);
   }
 }
 
@@ -70,37 +57,32 @@ function addClue(clueId) {
 function saveState() {
   try {
     localStorage.setItem(GAME_STATE_KEY, JSON.stringify(gameState));
-    console.log('State: Game state saved to localStorage.');
   } catch (error) {
-    console.error('State: Error saving game state to localStorage:', error);
+    // Silently fail if localStorage is not available
   }
 }
 
 // Function to load the game state from localStorage
 function loadState() {
-  try {    const savedState = localStorage.getItem(GAME_STATE_KEY);
+  try {
+    const savedState = localStorage.getItem(GAME_STATE_KEY);
     if (savedState) {
       const parsedState = JSON.parse(savedState);
       // Basic validation of the loaded state
-      if (parsedState && typeof parsedState.currentLocation !== 'undefined' && Array.isArray(parsedState.inventory) && Array.isArray(parsedState.collectedClues)) {
-        // Ensure flags property exists
+      if (parsedState && typeof parsedState.currentLocation !== 'undefined' && Array.isArray(parsedState.inventory) && Array.isArray(parsedState.collectedClues)) {        // Ensure flags property exists
         if (!parsedState.flags) parsedState.flags = {};
         gameState = parsedState;
-        console.log('State: Game state loaded from localStorage.');
       } else {
-        console.warn('State: Invalid state format in localStorage. Using default state.');
         // Initialize with default if format is bad, to prevent errors.
         gameState = { currentLocation: null, inventory: [], collectedClues: [], flags: {} };
         saveState(); // Optionally save the fresh default state
-      }
-    } else {
-      console.log('State: No saved game state found in localStorage. Using default state.');
+      }    } else {
       // Initialize with default if no state found.
       gameState = { currentLocation: null, inventory: [], collectedClues: [], flags: {} };
       // Optionally save the fresh default state immediately
       // saveState();
     }
-  } catch (error) {    console.error('State: Error loading game state from localStorage:', error);
+  } catch (error) {
     // Fallback to default state in case of any error
     gameState = { currentLocation: null, inventory: [], collectedClues: [], flags: {} };
   }
@@ -113,7 +95,6 @@ function resetState(initialLocation = null) {
     gameState.inventory = [];
     gameState.collectedClues = [];
     gameState.flags = {};
-    console.log('State: Game state has been reset.');
     saveState(); // Save the reset state
 }
 

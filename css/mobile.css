@@ -1,6 +1,7 @@
 /* Styles for mobile devices */
 
-@media (max-width: 600px) {    #button-row button {
+@media (max-width: 600px) {
+    #button-row button {
         min-height: 44px;
         padding: 12px 10px;
         margin: 8px auto; /* Adjusted margin for centering and spacing */
