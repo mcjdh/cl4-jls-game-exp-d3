@@ -10,22 +10,29 @@
 <body>
     <div id="loading-screen">
         <p>Loading G.O.A.T. Mystery...</p>
-        <p>
-    (\\__/)
+        <pre>
+    (\__/)
     (='.'=)
     (")_(")
-        </p>
+        </pre>
     </div>
-    <div id="terminal">
-        <p>GOAT MYSTERY TERMINAL</p>
-        <p>Loading...</p>
+    <div id="terminal"></div>    <div id="button-row">
+        <button data-command="look">EXAMINE</button>
+        <button data-command="inventory">INVENTORY</button>
+        <button data-command="help">HELP</button>
+        <button data-command="north">NORTH</button>
+        <button data-command="south">SOUTH</button>
+        <button data-command="east">EAST</button>
+        <button data-command="west">WEST</button>
+        <button data-command="up">UP</button>
+        <button data-command="down">DOWN</button>
     </div>
-    <div id="button-row">
-        <button>EXAMINE</button>
-        <button>MOVE</button>
-        <button>TALK</button>
-        <button>INVENTORY</button>
-        <button>MAP</button>
-    </div>
+    
+    <!-- Load scripts in correct order -->
+    <script src="js/state.js"></script>
+    <script src="levels/level-1.js"></script>
+    <script src="js/engine.js"></script>
+    <script src="js/terminal-ui.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>

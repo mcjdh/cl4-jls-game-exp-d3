@@ -14,6 +14,11 @@ body {
     padding: 10px;
     overflow-y: auto; /* Allow scrolling if content overflows */
     border-bottom: 1px solid #0F0; /* Green border */
+    max-height: 70vh;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 #terminal p {
@@ -21,9 +26,9 @@ body {
 }
 
 #button-row {
-    display: flex;
-    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 5px;
     padding: 10px;
     border-top: 1px solid #0F0; /* Green border */
 }
@@ -37,6 +42,8 @@ body {
     font-family: 'Courier New', Courier, monospace;
     cursor: pointer;
     min-width: 80px; /* Ensure buttons are reasonably sized */
+    min-height: 44px;
+    touch-action: manipulation;
 }
 
 #button-row button:hover {
@@ -47,12 +54,15 @@ body {
 /* Basic mobile responsiveness */
 @media (max-width: 600px) {
     #button-row {
-        flex-direction: column; /* Stack buttons vertically on small screens */
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 15px;
     }
 
     #button-row button {
-        width: 90%; /* Make buttons take more width */
-        margin: 5px auto; /* Center buttons */
+        width: 100%;
+        margin: 0;
+        font-size: 0.8em;
     }
 }
 
@@ -70,9 +80,39 @@ body {
     align-items: center;
     z-index: 1000;
     text-align: center;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 #loading-screen p {
     margin: 10px;
     font-size: 1.2em; /* Example font size, can be adjusted */
+}
+
+#loading-screen pre {
+    color: #0F0;
+    margin: 20px 0;
+}
+
+.terminal-line {
+    margin: 0;
+    padding: 2px 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.terminal-cursor {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.terminal-prompt {
+    display: flex;
+}
+
+.terminal-input {
+    flex-grow: 1;
 }

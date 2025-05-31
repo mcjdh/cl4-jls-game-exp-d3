@@ -1,208 +1,251 @@
 class GameEngine {
   constructor() {
-    this.currentScene = null;
-    this.outputArea = document.getElementById('output'); // Assuming an HTML element with id 'output' for displaying text
-    this.introShown = false;
-    this.gameState = { inventory: [], currentLocation: '' }; // Placeholder
-    this.currentLevel = null; // To store current level data
-    this.secretSequence = ["LOOK_FARM", "MOVE_FIELD", "LOOK_FIELD", "MOVE_BARN", "LOOK_BARN"];
-    this.playerSequence = [];
-    this.sequenceEggTriggered = false;
-  }
-
-  checkSecretSequence() {
-    if (this.sequenceEggTriggered) return;
-
-    // Keep playerSequence from growing too long (optional, but good practice)
-    while (this.playerSequence.length > this.secretSequence.length) {
-      this.playerSequence.shift();
-    }
-
-    if (this.playerSequence.length === this.secretSequence.length) {
-      let match = true;
-      for (let i = 0; i < this.secretSequence.length; i++) {
-        if (this.playerSequence[i] !== this.secretSequence[i]) {
-          match = false;
-          break;
-        }
-      }
-
-      if (match) {
-        this.display("--------------------");
-        this.display("SECRET FOUND!");
-        this.display("As you meticulously observe your surroundings, a fleeting thought crosses your mind...");
-        this.display("What if the G.O.A.T. is more than just an animal? What if it's a metaphor... or an acronym?");
-        this.display("--------------------");
-        this.sequenceEggTriggered = true;
-        this.playerSequence = []; // Clear sequence so it doesn't re-trigger or interfere
-      }
-    }
-  }
-
-  showCredits() {
-    this.display(" "); // Add a blank line before credits for separation
-    this.display("--------------------");
-    this.display("--- CREDITS ---");
-    this.display("GOAT Mystery: Terminal Tales");
-    this.display(" ");
-    this.display("A One-Hour MVP Build Production");
-    this.display(" ");
-    this.display("Lead Developer & Taskmaster: The User");
-    this.display(" ");
-    this.display("AI Engineering Team:");
-    this.display("- Agent A: HTML Structure, CSS Styling, Mobile UI");
-    this.display("- Agent B: Core Game Engine, State Logic, Game Flow Polish");
-    this.display("- Agent C: Level Design, ASCII Artistry, QA Testing");
-    this.display(" ");
-    this.display("Special Thanks to the G.O.A.T. for inspiration.");
-    this.display(" ");
-    this.display("Thanks for playing!");
-    this.display("--------------------");
-  }
-
-  triggerVictory(victoryData) {
-    this.display(victoryData.title);
-    this.display("[ASCII ART: " + victoryData.asciiArtKey + "]");
-    this.display(victoryData.message);
-    if (victoryData.nextActions && victoryData.nextActions.includes("showCredits")) {
-      this.showCredits();
-    }
-  }
-
-  showIntro(levelOpeningMessage) {
-    this.display("GOAT Mystery: Terminal Tales");
-    this.display(levelOpeningMessage);
-    this.introShown = true;
-  }
-
-  loadLevel(levelData) {
-    // TODO: Implement level loading logic
-    // For now, let's assume levelData is an object with a starting scene
-    if (levelData && levelData.startingScene) {
-      this.currentLevel = levelData; // Store level data
-      this.currentScene = levelData.startingScene;
-      this.gameState.currentLocation = this.currentScene; // Initialize gameState
-      if (!this.introShown && levelData.opening_message) {
-        this.showIntro(levelData.opening_message);
-      }
-      this.display(`Level loaded. Starting at: ${this.currentScene}`);
-    } else {
-      this.display("Error: Invalid level data.");
-    }
+    this.currentLevel = null;
+    this.gameState = {
+      currentLocation: null,
+      inventory: [],
+      flags: {},
+      goatFound: false
+    };
+    this.outputCallback = null;
   }
 
   display(text) {
-    if (this.outputArea) {
-      const paragraph = document.createElement('p');
-      paragraph.textContent = text;
-      this.outputArea.appendChild(paragraph);
-      this.outputArea.scrollTop = this.outputArea.scrollHeight; // Scroll to the bottom
+    if (this.outputCallback) {
+      this.outputCallback(text);
     } else {
-      console.log(text); // Fallback to console if outputArea is not found
+      console.log(text);
     }
   }
 
-  parseCommand(commandString) {
-    const parts = commandString.trim().toUpperCase().split(/\s+/);
+  loadLevel(levelData) {
+    this.currentLevel = levelData;
+    this.gameState.currentLocation = levelData.startLocation;
+    this.display("=== " + levelData.name + " ===");
+    this.display(levelData.opening_message);
+    this.display("");
+    this.lookAround();
+  }
+
+  lookAround() {
+    const location = this.getCurrentLocation();
+    if (!location) {
+      this.display("You are nowhere...");
+      return;
+    }
+      this.display("Location: " + location.name);
+    this.display(location.description);
+    
+    if (location.items && location.items.length > 0) {
+      this.display("You see: " + location.items.join(", "));
+    }
+    
+    if (location.npcs && location.npcs.length > 0) {
+      this.display("People here: " + location.npcs.join(", "));
+    }
+    
+    if (location.special === 'goat_found' && !this.gameState.goatFound) {
+      this.gameState.goatFound = true;
+      this.display("\n*** You found Geraldine the goat! ***");
+      this.checkVictory();
+    }
+  }
+
+  getCurrentLocation() {
+    if (!this.currentLevel || !this.gameState.currentLocation) return null;
+    return this.currentLevel.locations[this.gameState.currentLocation];
+  }
+
+  parseCommand(input) {
+    const parts = input.trim().toLowerCase().split(/\s+/);
     const command = parts[0];
-    const argument = parts.slice(1).join(" ");
+    const args = parts.slice(1).join(' ');
 
-    this.display(`> ${commandString}`); // Display the original command
-
-    switch (command) {
-      case "LOOK":
-        // TODO: Implement LOOK logic (e.g., describe current scene)
-        this.display("You look around.");
-        if (!this.sequenceEggTriggered) {
-          const locationId = this.gameState.currentLocation.toUpperCase();
-          this.playerSequence.push(`LOOK_${locationId}`);
-          this.checkSecretSequence();
-        }
-        break;
-      case "MOVE":
-        if (argument) {
-          // TODO: Implement MOVE logic (e.g., change currentScene based on direction)
-          // For now, let's assume argument is a valid scene name for simplicity
-          // Argument here is the *direction* or *target scene name*.
-          // We need to ensure this argument is the actual scene ID for setCurrentScene.
-          // For this example, we'll assume 'argument' is directly the scene ID.
-          this.setCurrentScene(argument);
+    switch (command) {      case 'look':
+      case 'examine':
+        if (args) {
+          this.examineItem(args);
         } else {
-          this.display("Move where?");
+          this.lookAround();
         }
         break;
-      case "TAKE":
-        if (argument) {
-          // TODO: Implement TAKE logic (e.g., add item to inventory)
-          // For testing, let's simplify and assume argument is item id
-          if (this.currentLevel && this.currentLevel.items && this.currentLevel.items[argument.toLowerCase()]) {
-            if (!this.gameState.inventory.includes(argument.toLowerCase())) {
-              this.gameState.inventory.push(argument.toLowerCase());
-              this.display(this.currentLevel.items[argument.toLowerCase()].on_take || `You take the ${this.currentLevel.items[argument.toLowerCase()].name}.`);
-            } else {
-              this.display(`You already have the ${this.currentLevel.items[argument.toLowerCase()].name}.`);
-            }
-          } else {
-            this.display(`You try to take ${argument}, but it's not here.`);
-          }
-        } else {
-          this.display("Take what?");
-        }
+        
+      case 'go':
+      case 'move':
+        this.move(args);
         break;
-      case "TEAM":
-        this.display("The G.O.A.T. developers: Agent A, Agent B, Agent C send their regards!");
-        this.display("    (\\__/)");
-        this.display("    (='.'=)");
-        this.display("    (\")_(\")"); // Simple bunny
+        
+      case 'north':
+      case 'south':
+      case 'east':
+      case 'west':
+      case 'up':
+      case 'down':
+        this.move(command);
         break;
-      case "TALK":
-        if (argument) {
-          const currentLocationData = this.currentLevel.locations[this.gameState.currentLocation];
-          if (currentLocationData &&
-              currentLocationData.hiddenInteractions &&
-              currentLocationData.hiddenInteractions.TALK &&
-              currentLocationData.hiddenInteractions.TALK[argument.toUpperCase()]) {
-            this.display(currentLocationData.hiddenInteractions.TALK[argument.toUpperCase()]);
-            break;
-          }
-          // Default message if no hidden interaction or NPC found (NPC logic would go here)
-          this.display(`You try to talk to ${argument}, but nothing happens.`);
-        } else {
-          this.display("Talk to whom?");
-        }
+        
+      case 'take':
+      case 'get':
+        this.takeItem(args);
         break;
-      case "CREDITS":
-        this.showCredits();
+        
+      case 'talk':
+        this.talkTo(args);
         break;
+        
+      case 'inventory':
+      case 'i':
+        this.showInventory();
+        break;
+        
+      case 'help':
+        this.showHelp();
+        break;
+        
       default:
-        this.display("Unknown command.");
+        this.display("I don't understand that command. Type 'help' for available commands.");
     }
+  }
 
-    // Check for end condition after processing command
-    if (this.currentLevel && typeof this.currentLevel.endCondition === 'function' && this.currentLevel.endCondition(this.gameState)) {
-      if (typeof this.currentLevel.onComplete === 'function') {
-        const victoryData = this.currentLevel.onComplete(this.gameState);
-        this.triggerVictory(victoryData);
-        // TODO: Set a flag like this.levelCompleted = true; to stop further commands for this level.
+  move(direction) {
+    const location = this.getCurrentLocation();
+    if (!location) return;
+    
+    if (location.connections && location.connections[direction]) {
+      this.gameState.currentLocation = location.connections[direction];
+      this.display("\nYou go " + direction + "...\n");
+      this.lookAround();
+      
+      // Update game state
+      if (typeof GameState !== 'undefined') {
+        GameState.updateLocation(this.gameState.currentLocation);
+        GameState.saveState();
       }
+    } else {
+      this.display("You can't go that way.");
     }
   }
 
-  // Basic scene management
-  getCurrentScene() {
-    return this.currentScene;
+  takeItem(itemName) {
+    const location = this.getCurrentLocation();
+    if (!location || !location.items) return;
+    
+    const itemIndex = location.items.indexOf(itemName);
+    if (itemIndex !== -1) {
+      const item = this.currentLevel.items[itemName];
+      if (item && item.takeable !== false) {
+        location.items.splice(itemIndex, 1);
+        this.gameState.inventory.push(itemName);
+        this.display("You take the " + itemName + ".");
+          // Update game state
+        if (typeof GameState !== 'undefined') {
+          GameState.addItemToInventory(itemName);
+          // Sync flags to external state if they exist
+          if (this.gameState.flags) {
+            GameState.getGameState().flags = this.gameState.flags;
+          }
+          GameState.saveState();
+        }
+      } else {
+        this.display("You can't take that.");
+      }
+    } else {
+      this.display("You don't see that here.");
+    }
   }
 
-  setCurrentScene(sceneName) {
-    // TODO: Actually check if sceneName is a valid connection from currentScene
-    this.currentScene = sceneName;
-    this.gameState.currentLocation = sceneName; // Update gameState
-    this.display("...");
-    this.display(`You move to the ${sceneName}.`);
-    if (!this.sequenceEggTriggered) {
-      const locationId = sceneName.toUpperCase();
-      this.playerSequence.push(`MOVE_${locationId}`);
-      this.checkSecretSequence();
+  examineItem(itemName) {
+    const location = this.getCurrentLocation();
+    if (!location) return;
+    
+    // Check if item is in current location
+    if (location.items && location.items.includes(itemName)) {
+      const item = this.currentLevel.items[itemName];
+      if (item) {
+        this.display("You examine the " + itemName + ":");
+        this.display(item.description);
+        
+        // Set flag for examined non-takeable items
+        if (item.takeable === false) {
+          if (!this.gameState.flags) this.gameState.flags = {};
+          this.gameState.flags['examined' + itemName.charAt(0).toUpperCase() + itemName.slice(1)] = true;
+            // Save state
+          if (typeof GameState !== 'undefined') {
+            // Sync flags to external state
+            if (this.gameState.flags) {
+              const state = GameState.getGameState();
+              state.flags = this.gameState.flags;
+            }
+            GameState.saveState();
+          }
+        }
+      } else {
+        this.display("You don't see anything special about the " + itemName + ".");
+      }
+    } else if (this.gameState.inventory.includes(itemName)) {
+      // Check inventory
+      const item = this.currentLevel.items[itemName];
+      if (item) {
+        this.display("You examine the " + itemName + " in your inventory:");
+        this.display(item.description);
+      }
+    } else {
+      this.display("You don't see a " + itemName + " here.");
+    }
+  }
+
+  talkTo(target) {
+    const location = this.getCurrentLocation();
+    if (!location || !target) {
+      this.display("Talk to whom?");
+      return;
+    }
+    
+    // Check if there's an NPC here
+    if (location.npcs && location.npcs.includes(target)) {
+      const npc = this.currentLevel.npcs[target];
+      if (npc) {        // Simple dialogue based on game state
+        if (this.gameState.goatFound && npc.dialogue.goatFound) {
+          this.display(npc.name + ": " + npc.dialogue.goatFound);
+        } else if ((this.gameState.inventory.includes('tracks') || this.gameState.flags.examinedTracks) && npc.dialogue.foundClue2) {
+          this.display(npc.name + ": " + npc.dialogue.foundClue2);
+        } else if (this.gameState.inventory.includes('wool') && npc.dialogue.foundClue1) {
+          this.display(npc.name + ": " + npc.dialogue.foundClue1);
+        } else if (npc.dialogue.initial) {
+          this.display(npc.name + ": " + npc.dialogue.initial);
+        }
+      }
+    } else {
+      this.display("There's no " + target + " here to talk to.");
+    }
+  }
+
+  showInventory() {
+    if (this.gameState.inventory.length === 0) {
+      this.display("You're not carrying anything.");
+    } else {
+      this.display("You are carrying: " + this.gameState.inventory.join(", "));
+    }
+  }  showHelp() {
+    this.display("Available commands:");
+    this.display("- look/examine: Look around");
+    this.display("- examine [item]: Look closely at an item");
+    this.display("- go [direction]: Move in a direction");
+    this.display("- north/south/east/west/up/down: Move in that direction");
+    this.display("- take/get [item]: Pick up an item");
+    this.display("- talk [person]: Talk to someone");
+    this.display("- inventory/i: Check your inventory");
+    this.display("- help: Show this help");
+  }
+
+  checkVictory() {
+    if (this.currentLevel && this.currentLevel.endCondition) {
+      if (this.currentLevel.endCondition(this.gameState)) {
+        const result = this.currentLevel.onComplete(this.gameState);
+        this.display("\n" + result.title);
+        this.display(result.message);
+        this.display("\nThank you for playing!");
+      }
     }
   }
 }

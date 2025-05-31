@@ -4,7 +4,8 @@
 let gameState = {
   currentLocation: null, // Will be set by levelLoader or engine after level loads
   inventory: [],
-  collectedClues: []
+  collectedClues: [],
+  flags: {}
 };
 
 const GAME_STATE_KEY = 'goatMysteryGameState';
@@ -80,15 +81,16 @@ function loadState() {
   try {
     const savedState = localStorage.getItem(GAME_STATE_KEY);
     if (savedState) {
-      const parsedState = JSON.parse(savedState);
-      // Basic validation of the loaded state
+      const parsedState = JSON.parse(savedState);      // Basic validation of the loaded state
       if (parsedState && typeof parsedState.currentLocation !== 'undefined' && Array.isArray(parsedState.inventory) && Array.isArray(parsedState.collectedClues)) {
+        // Ensure flags property exists
+        if (!parsedState.flags) parsedState.flags = {};
         gameState = parsedState;
         console.log('State: Game state loaded from localStorage.');
       } else {
         console.warn('State: Invalid state format in localStorage. Using default state.');
         // Initialize with default if format is bad, to prevent errors.
-        gameState = { currentLocation: null, inventory: [], collectedClues: [] };
+        gameState = { currentLocation: null, inventory: [], collectedClues: [], flags: {} };
         saveState(); // Optionally save the fresh default state
       }
     } else {
